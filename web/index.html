@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1017">
+  <title>Tritium BMS — Telemetry Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%8B%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🔋</span>
+      <div>
+        <div class="title">Tritium BMS</div>
+        <div class="subtitle" id="sourceLabel">connecting…</div>
+      </div>
+    </div>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="live" role="tab">● Live</button>
+      <button class="tab" data-tab="replay" role="tab">⟲ Replay</button>
+    </nav>
+
+    <div class="status">
+      <span class="pill" id="connPill"><span class="dot"></span><span id="connText">—</span></span>
+      <span class="meta" id="frameMeta">—</span>
+      <button class="iconbtn" id="soundBtn" title="Toggle alarm sound">🔇</button>
+      <button class="iconbtn" id="themeBtn" title="Toggle light / dark">☀️</button>
+    </div>
+  </header>
+
+  <div id="alarmBanner" class="alarm-banner" hidden></div>
+
+  <!-- ===================== LIVE / DATA VIEW ===================== -->
+  <main id="tab-live" class="view">
+    <section class="grid-top">
+      <!-- Battery / pack summary -->
+      <div class="card battery-card">
+        <div class="card-h">Pack charge &amp; power</div>
+        <div class="battery-wrap">
+          <div class="battery" id="battery">
+            <div class="battery-fill" id="batFill"></div>
+            <div class="battery-ticks"><i></i><i></i><i></i></div>
+            <div class="battery-label">
+              <div class="soc-num" id="socNum">—</div>
+              <div class="soc-sub">charge (voltage&nbsp;est.)</div>
+            </div>
+          </div>
+          <div class="battery-nub"></div>
+        </div>
+        <div class="readouts" id="battReadouts">
+          <div class="ro"><span>Pack voltage</span><b id="roPackV">—</b></div>
+          <div class="ro"><span>Power</span><b id="roPower">—</b></div>
+          <div class="ro"><span>Energy left</span><b id="roEnergy">—</b></div>
+          <div class="ro"><span>Charge left</span><b id="roCharge">—</b></div>
+          <div class="ro"><span>State</span><b id="roState">—</b></div>
+          <div class="ro"><span>Avg cell</span><b id="roAvg">—</b></div>
+          <div class="ro"><span>BMS SOC (raw)</span><b id="roSocBms" class="muted">—</b></div>
+        </div>
+      </div>
+
+      <!-- Pack telemetry tiles -->
+      <div class="card tiles-card">
+        <div class="card-h">Pack telemetry</div>
+        <div class="tiles" id="tiles"><!-- filled by JS --></div>
+      </div>
+    </section>
+
+    <!-- Trend charts -->
+    <section class="card charts-card">
+      <div class="card-h">Trends <span class="muted small" id="chartWindow">(rolling)</span></div>
+      <div class="charts">
+        <div class="chart-box"><canvas id="chV"></canvas></div>
+        <div class="chart-box"><canvas id="chPV"></canvas></div>
+        <div class="chart-box"><canvas id="chI"></canvas></div>
+      </div>
+    </section>
+
+    <!-- CMU table -->
+    <section class="card cmu-card">
+      <div class="card-h">CMU cell telemetry
+        <span class="legend">
+          <i class="sw sw-min"></i>min cell
+          <i class="sw sw-max"></i>max cell
+          <i class="sw sw-alarm"></i>alarm
+        </span>
+      </div>
+      <div class="table-scroll">
+        <table class="cmu-table" id="cmuTable">
+          <thead id="cmuHead"></thead>
+          <tbody id="cmuBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="cmuEmpty">Waiting for CMU telemetry…</div>
+    </section>
+  </main>
+
+  <!-- ===================== REPLAY VIEW ===================== -->
+  <main id="tab-replay" class="view" hidden>
+    <section class="card replay-card">
+      <div class="card-h">Replay a logged session</div>
+      <div class="replay-controls">
+        <select id="logSelect" class="select"><option>Loading logs…</option></select>
+        <button class="btn" id="logLoad">Load</button>
+        <span class="meta" id="logMeta"></span>
+      </div>
+      <div class="replay-transport" id="transport" hidden>
+        <button class="btn" id="playBtn">▶ Play</button>
+        <input type="range" id="scrub" class="scrub" min="0" max="0" value="0">
+        <span class="mono" id="replayTime">—</span>
+        <label class="speed">Speed
+          <select id="speedSel" class="select">
+            <option value="1">1×</option>
+            <option value="2">2×</option>
+            <option value="5">5×</option>
+            <option value="10" selected>10×</option>
+            <option value="30">30×</option>
+            <option value="60">60×</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- Replay reuses the same panels as Live -->
+    <section class="grid-top">
+      <div class="card battery-card">
+        <div class="card-h">Pack charge &amp; power</div>
+        <div class="battery-wrap">
+          <div class="battery" id="battery_r">
+            <div class="battery-fill" id="batFill_r"></div>
+            <div class="battery-ticks"><i></i><i></i><i></i></div>
+            <div class="battery-label">
+              <div class="soc-num" id="socNum_r">—</div>
+              <div class="soc-sub">charge (voltage&nbsp;est.)</div>
+            </div>
+          </div>
+          <div class="battery-nub"></div>
+        </div>
+        <div class="readouts">
+          <div class="ro"><span>Pack voltage</span><b id="roPackV_r">—</b></div>
+          <div class="ro"><span>Power</span><b id="roPower_r">—</b></div>
+          <div class="ro"><span>Energy left</span><b id="roEnergy_r">—</b></div>
+          <div class="ro"><span>Charge left</span><b id="roCharge_r">—</b></div>
+          <div class="ro"><span>State</span><b id="roState_r">—</b></div>
+          <div class="ro"><span>Avg cell</span><b id="roAvg_r">—</b></div>
+          <div class="ro"><span>BMS SOC (raw)</span><b id="roSocBms_r" class="muted">—</b></div>
+        </div>
+      </div>
+      <div class="card tiles-card">
+        <div class="card-h">Pack telemetry</div>
+        <div class="tiles" id="tiles_r"></div>
+      </div>
+    </section>
+
+    <section class="card charts-card">
+      <div class="card-h">Trends <span class="muted small">(around cursor)</span></div>
+      <div class="charts">
+        <div class="chart-box"><canvas id="chV_r"></canvas></div>
+        <div class="chart-box"><canvas id="chPV_r"></canvas></div>
+        <div class="chart-box"><canvas id="chI_r"></canvas></div>
+      </div>
+    </section>
+
+    <section class="card cmu-card">
+      <div class="card-h">CMU cell telemetry
+        <span class="legend">
+          <i class="sw sw-min"></i>min cell
+          <i class="sw sw-max"></i>max cell
+          <i class="sw sw-alarm"></i>alarm
+        </span>
+      </div>
+      <div class="table-scroll">
+        <table class="cmu-table" id="cmuTable_r">
+          <thead id="cmuHead_r"></thead>
+          <tbody id="cmuBody_r"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    Tritium BMS web dashboard · reads live CAN telemetry &amp; CSV logs ·
+    runs on Windows, macOS &amp; Raspberry Pi
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

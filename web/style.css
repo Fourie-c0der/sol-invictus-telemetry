@@ -1,0 +1,226 @@
+/* ============================================================
+   Tritium BMS web dashboard — styles
+   Dark by default (good in a vehicle); light theme via [data-theme].
+   ============================================================ */
+
+:root {
+  --bg:        #0d1017;
+  --panel:     #161b24;
+  --panel-2:   #1c222d;
+  --border:    #262d3a;
+  --text:      #e6e9ef;
+  --muted:     #8a94a6;
+  --faint:     #5a6478;
+
+  --green:  #37c871;
+  --orange: #ff8c1a;
+  --blue:   #4aa3ff;
+  --yellow: #ffd23f;
+  --red:    #ff4d5e;
+  --purple: #c07aff;
+
+  --min-bg:   rgba(74,163,255,.16);
+  --max-bg:   rgba(255,140,26,.16);
+  --alarm-bg: rgba(255,77,94,.20);
+
+  --radius: 12px;
+  --shadow: 0 1px 0 rgba(255,255,255,.03), 0 8px 24px rgba(0,0,0,.35);
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+[data-theme="light"] {
+  --bg:        #eef1f6;
+  --panel:     #ffffff;
+  --panel-2:   #f4f6fa;
+  --border:    #d8deea;
+  --text:      #1a1f2b;
+  --muted:     #5b6577;
+  --faint:     #97a1b3;
+  --min-bg:   rgba(74,163,255,.14);
+  --max-bg:   rgba(255,140,26,.16);
+  --alarm-bg: rgba(255,77,94,.16);
+  --shadow: 0 1px 2px rgba(20,30,60,.06), 0 8px 20px rgba(20,30,60,.08);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------- Top bar ---------------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 18px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand .logo { font-size: 26px; line-height: 1; }
+.brand .title { font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+.brand .subtitle {
+  color: var(--muted); font-size: 12px; font-family: var(--mono);
+  max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.tabs { display: flex; gap: 6px; margin-left: 6px; }
+.tab {
+  border: 1px solid var(--border); background: var(--panel-2);
+  color: var(--muted); padding: 7px 14px; border-radius: 999px;
+  font: inherit; font-weight: 600; cursor: pointer; transition: .15s;
+}
+.tab:hover { color: var(--text); }
+.tab.is-active { color: #fff; background: linear-gradient(180deg,#2a3140,#20262f); border-color: #38414f; color: var(--text); }
+
+.status { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.meta { color: var(--muted); font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 11px; border-radius: 999px;
+  background: var(--panel-2); border: 1px solid var(--border);
+  font-weight: 600; font-size: 12.5px; white-space: nowrap;
+}
+.pill .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--faint); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+.pill.live   .dot { background: var(--green);  animation: pulse 1.6s infinite; }
+.pill.slow   .dot { background: var(--yellow); }
+.pill.stale  .dot { background: var(--red); }
+.pill.nodata .dot { background: var(--faint); }
+.pill.replay .dot { background: var(--blue); }
+@keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(55,200,113,.5)} 70%{box-shadow:0 0 0 7px rgba(55,200,113,0)} 100%{box-shadow:0 0 0 0 rgba(55,200,113,0)} }
+
+.iconbtn {
+  border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+  width: 34px; height: 34px; border-radius: 9px; cursor: pointer; font-size: 15px;
+}
+.iconbtn:hover { border-color: var(--faint); }
+
+/* ---------------- Alarm banner ---------------- */
+.alarm-banner {
+  margin: 10px 18px 0; padding: 11px 16px; border-radius: 10px;
+  background: var(--red); color: #fff; font-weight: 700; text-align: center;
+  border: 1px solid #ff7784; letter-spacing: .2px;
+  animation: flash 1s steps(1) infinite;
+}
+@keyframes flash { 50% { background: #a3212f; } }
+
+/* ---------------- Layout ---------------- */
+.view { padding: 14px 18px 8px; max-width: 1440px; margin: 0 auto; }
+.grid-top {
+  display: grid; gap: 14px; grid-template-columns: minmax(320px, 1fr) 1.6fr;
+}
+@media (max-width: 900px) { .grid-top { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 14px; margin-bottom: 14px;
+}
+.card-h {
+  font-weight: 700; font-size: 13px; letter-spacing: .3px;
+  color: var(--muted); text-transform: uppercase;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+}
+.small { font-size: 11px; text-transform: none; letter-spacing: 0; }
+.muted { color: var(--muted); }
+
+/* ---------------- Battery card ---------------- */
+.battery-card { display: flex; flex-direction: column; }
+.battery-wrap { display: flex; align-items: stretch; gap: 4px; margin-bottom: 14px; }
+.battery {
+  position: relative; flex: 1; height: 132px;
+  border: 3px solid var(--faint); border-radius: 12px;
+  background: var(--panel-2); overflow: hidden;
+}
+.battery-nub {
+  width: 9px; align-self: center; height: 46px;
+  background: var(--faint); border-radius: 0 5px 5px 0;
+}
+.battery-fill {
+  position: absolute; inset: 3px auto 3px 3px; width: 0%;
+  border-radius: 8px; transition: width .4s ease, background .4s ease;
+  background: var(--green);
+}
+.battery-ticks { position: absolute; inset: 0; display: flex; }
+.battery-ticks i { flex: 1; border-right: 1px solid rgba(255,255,255,.06); }
+.battery-ticks i:last-child { border: 0; }
+.battery-label { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.soc-num { font-size: 42px; font-weight: 800; line-height: 1; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+.soc-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+.readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; }
+@media (max-width: 460px) { .readouts { grid-template-columns: 1fr; } }
+.ro { display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  border-bottom: 1px dashed var(--border); padding: 5px 0; }
+.ro span { color: var(--muted); font-size: 12.5px; }
+.ro b { font-family: var(--mono); font-size: 15px; font-weight: 700; }
+
+/* ---------------- Tiles ---------------- */
+.tiles {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.tile {
+  background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px;
+}
+.tile .k { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .4px; }
+.tile .v { font-family: var(--mono); font-size: 19px; font-weight: 700; margin-top: 4px; }
+.tile .s { color: var(--faint); font-size: 11.5px; font-family: var(--mono); margin-top: 1px; min-height: 14px; }
+.tile.warn { border-color: color-mix(in srgb, var(--red) 55%, var(--border)); }
+.tile.good .v { color: var(--green); }
+.v.blue { color: var(--blue); } .v.orange { color: var(--orange); }
+.v.green { color: var(--green); } .v.red { color: var(--red); } .v.yellow { color: var(--yellow); }
+
+/* ---------------- Charts ---------------- */
+.charts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 820px) { .charts { grid-template-columns: 1fr; } }
+.chart-box { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 6px; }
+.chart-box canvas { width: 100%; height: 170px; display: block; }
+
+/* ---------------- CMU table ---------------- */
+.legend { margin-left: auto; display: flex; align-items: center; gap: 10px;
+  color: var(--muted); font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 11.5px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; margin-right: 3px; vertical-align: -2px; border: 1px solid var(--border); }
+.sw-min { background: var(--min-bg); } .sw-max { background: var(--max-bg); } .sw-alarm { background: var(--alarm-bg); }
+
+.table-scroll { overflow-x: auto; }
+.cmu-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 13px; }
+.cmu-table th, .cmu-table td { padding: 8px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border); }
+.cmu-table th { position: sticky; top: 0; background: var(--panel); color: var(--muted);
+  font-weight: 600; text-align: right; font-size: 11.5px; text-transform: uppercase; letter-spacing: .3px; }
+.cmu-table th:first-child, .cmu-table td:first-child { text-align: left; }
+.cmu-table tbody tr:hover { background: color-mix(in srgb, var(--panel-2) 60%, transparent); }
+.cmu-table td.cmu-name { font-weight: 700; font-family: var(--sans); }
+.cmu-table td.cell-min { background: var(--min-bg); color: var(--blue); font-weight: 700; border-radius: 4px; }
+.cmu-table td.cell-max { background: var(--max-bg); color: var(--orange); font-weight: 700; border-radius: 4px; }
+.cmu-table tr.row-alarm td { background: var(--alarm-bg); }
+.cmu-table tr.row-alarm td.cmu-name { color: var(--red); }
+.empty { color: var(--muted); text-align: center; padding: 22px; font-size: 13px; }
+
+/* ---------------- Replay ---------------- */
+.replay-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.replay-transport { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.select {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; font: inherit; max-width: 60vw;
+}
+.btn {
+  background: linear-gradient(180deg, #2b3342, #212734); color: var(--text);
+  border: 1px solid #384254; border-radius: 8px; padding: 8px 16px; font: inherit;
+  font-weight: 600; cursor: pointer;
+}
+.btn:hover { border-color: var(--faint); }
+.scrub { flex: 1; min-width: 220px; accent-color: var(--blue); }
+.mono { font-family: var(--mono); }
+.speed { color: var(--muted); display: flex; align-items: center; gap: 6px; }
+
+.foot { color: var(--faint); text-align: center; font-size: 12px; padding: 18px; }
