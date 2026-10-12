@@ -1,30 +1,4 @@
 #!/usr/bin/env python3
-r"""
-bms_web.py  —  Cross-platform WEB dashboard for the Tritium BMS telemetry.
-
-A browser-based replacement for the Tkinter desktop dashboards. It runs a small
-HTTP server (Python standard library only — no pip install) that:
-
-    * receives the live BMS stream (Tritium CAN-Ethernet multicast / UDP / relay),
-    * decodes it with the shared bms_decode module,
-    * logs one CSV row per second (same schema as the original logs), and
-    * serves a live, auto-refreshing dashboard plus a JSON API.
-
-Because it is browser-based it runs identically on Windows, macOS and a
-Raspberry Pi, and any number of phones / tablets / laptops on the same network
-can watch at once just by opening the URL — no per-machine install.
-
-QUICK START
------------
-    python bms_web.py                 # live BMS stream, dashboard on :8080
-    python bms_web.py --demo          # synthetic data (no hardware needed)
-    python bms_web.py --port 9000     # choose a port
-    python bms_web.py --relay         # also re-serve the stream to the LAN
-    python bms_web.py --no-csv        # don't write CSV logs
-
-Then open  http://localhost:8080  (or the LAN URL it prints) in any browser.
-The dashboard also has a REPLAY tab for browsing the CSV logs in ./logs.
-"""
 
 import argparse
 import collections
