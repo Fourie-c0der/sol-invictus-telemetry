@@ -1,20 +1,4 @@
 #!/usr/bin/env python3
-r"""
-bms_core.py  —  headless, GUI-free core for the Tritium BMS web dashboard.
-
-This module holds everything the web server needs that does NOT depend on a
-display toolkit, so it runs unchanged on Windows, macOS and a headless
-Raspberry Pi:
-
-    * BmsState          shared telemetry state, updated from CAN frames
-    * DemoSource        synthetic data generator (for testing without hardware)
-    * compute_battery   voltage-based charge / power / energy estimate
-    * eval_alarms       over/under-voltage, over-temp and BMS fault detection
-
-The logic is ported from the original Tkinter dashboards (bms_dashboard.py /
-bms_dashboard_can.py) so the numbers shown in the browser match the desktop app
-exactly. Frame decoding is delegated to the shared bms_decode module.
-"""
 
 import random
 import struct
