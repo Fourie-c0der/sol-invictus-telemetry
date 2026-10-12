@@ -1,44 +1,4 @@
 #!/usr/bin/env python3
-r"""
-bms_decode.py
-
-Decoder for the Tritium BMS  BMU -> Vehicle  CAN communications protocol
-(document TRI67.010 ver 2, 25 February 2013).
-
-Each CAN frame is an 11-bit CAN ID plus 8 data bytes.  The 8 bytes are a
-little-endian 'union' overlay (correct for MSP430 and x86):
-
-    byte:   b0  b1  b2  b3  b4  b5  b6  b7
-    u8  :   [0] [1] [2] [3] [4] [5] [6] [7]
-    u16 :   [--0--] [--1--] [--2--] [--3--]      (little-endian)
-    16  :   signed versions of the above
-    u32 :   [------0------] [------1------]       (little-endian)
-    32  :   signed versions of the above
-    fp  :   [--float 0----] [--float 1----]       (IEEE-754, little-endian)
-
-Default CAN base ID is 0x600 (user-adjustable). Telemetry IDs 0x6F4..0x6FD
-are at fixed offsets from the base; CMU telemetry occupies 0x601..0x6EF.
-
-USAGE
------
-As a command-line decoder (paste frames, one per line):
-
-    python bms_decode.py                 # then type/paste frames, Ctrl+Z Enter to end
-    echo 6FA 60 EA 00 00 F4 01 00 00 | python bms_decode.py
-    python bms_decode.py --base 0x600
-
-Accepted input formats per line (ID then 8 data bytes):
-    6FA 60 EA 00 00 F4 01 00 00
-    0x6FA 60EA0000F401 0000
-    6FA#60EA0000F4010000          (candump / SLCAN style)
-    (0.123456) can0 6FA#60EA0000F4010000
-
-As a library:
-
-    from bms_decode import decode_frame, format_decoded
-    d = decode_frame(0x6FA, bytes.fromhex("60EA0000F4010000"))
-    print(format_decoded(d))
-"""
 
 import argparse
 import re
