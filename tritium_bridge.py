@@ -1,28 +1,4 @@
 #!/usr/bin/env python3
-r"""
-tritium_bridge.py
-
-Receiver / parser for the Tritium CAN-Ethernet bridge UDP multicast stream, as
-emitted by the BMS on this system.
-
-Wire format (confirmed by capture on 192.168.0.125):
-    Multicast group : 239.255.60.60
-    UDP port        : 4876
-    Datagram layout :
-        Header (16 bytes):
-            [0]      0x00
-            [1:8]    "Tritium"
-            [8:16]   bridge / client identifier (8 bytes)
-        Then 1..N CAN records, 14 bytes each:
-            [0:4]    CAN identifier, uint32 BIG-ENDIAN
-            [4]      flags   (0x80 = bridge heartbeat, etc.)
-            [5]      length  (data length, 0..8)
-            [6:14]   data    (8 bytes)
-
-NOTE: on this unit the BMS CAN *base ID* is 0x300 (not the 0x600 default), so
-      the BMU packets appear at 0x3F4..0x3FD and CMU telemetry at 0x301+.
-      Pass base=0x300 to the decoder.
-"""
 
 import re
 import socket
